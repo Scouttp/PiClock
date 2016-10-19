@@ -47,6 +47,8 @@ fontattr = ''   # gives all text additional attributes using QT style notation
 dimcolor = QColor('#000000')    # These are to dim the radar images, if needed.
 dimcolor.setAlpha(0)            # see and try Config-Example-Bedside.py
 
+brightness = 255  # Screen brightness set between 11-255
+
 # Language Specific wording
 wuLanguage = "EN"   # Weather Undeground Language code (https://www.wunderground.com/weather/api/d/docs?d=language-support&MR=1)
 DateLocale = ''  # The Python Locale for date/time (locale.setlocale) -- '' for default Pi Setting
