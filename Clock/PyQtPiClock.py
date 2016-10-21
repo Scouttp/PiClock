@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python -tt
 # -*- coding: utf-8 -*-
 
 import sys, os, platform, signal
@@ -27,14 +27,14 @@ def tick():
     global lastmin,lastday,lasttimestr
     global clockrect
     global datex, datex2, datey2, pdy
-	
-	
+
+
     if Config.DateLocale != "":
         try:
             locale.setlocale(locale.LC_TIME, Config.DateLocale)
         except:
-            pass 
-    
+            pass
+
     now = datetime.datetime.now()
     if Config.digital:
         timestr = Config.digitalformat.format(now)
@@ -81,7 +81,7 @@ def tick():
                 ts.width(),
                 ts.height()
             )
-            
+
             angle = ((now.hour % 12) + now.minute / 60.0) * 30.0
             ts = hourpixmap.size()
             hourpixmap2 = hourpixmap.transformed(
@@ -99,12 +99,12 @@ def tick():
                 ts.width(),
                 ts.height()
             )
-            
+
     dy = "{0:%I:%M %p}".format(now)
     if dy != pdy:
         pdy = dy
         datey2.setText(dy)
-        
+
     if now.day != lastday:
         lastday = now.day
         # date
@@ -117,9 +117,9 @@ def tick():
         ds = "{0:%A %B} {0.day}<sup>{1}</sup> {0.year}".format(now,sup)
         datex.setText(ds)
         datex2.setText(ds)
- 
 
-    
+
+
 def tempfinished():
     global tempreply, temp
     if tempreply.error() != QNetworkReply.NoError: return
@@ -141,7 +141,7 @@ def tempfinished():
                 for tk in tempdata['temps']:
                     s += ' ' + tk + ':' + tempdata['temps'][tk]
     temp.setText(s)
-    
+
 def gettemp():
     global tempreply
     host = 'localhost'
@@ -151,7 +151,7 @@ def gettemp():
     tempreply = manager.get(r)
     tempreply.finished.connect(tempfinished)
 
-    
+
 def wxfinished():
     global wxreply, wxdata
     global wxicon, temper, wxdesc, press, humidity, wind, wind2, wdate, bottom, forecast
@@ -169,7 +169,7 @@ def wxfinished():
     wxicon2.setPixmap(wxiconpixmap.scaled(wxicon.width(),wxicon.height(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
     wxdesc.setText(f['weather'])
     wxdesc2.setText(f['weather'])
-    
+
     if Config.metric:
         temper.setText(str(f['temp_c'])+u'°C')
         temper2.setText(str(f['temp_c'])+u'°C')
@@ -192,15 +192,15 @@ def wxfinished():
         wind2.setText(Config.LFeelslike+str(f['feelslike_f']) )
         wdate.setText("{0:%H:%M}".format(datetime.datetime.fromtimestamp(int(f['local_epoch'])))+
                       Config.LPrecip1hr+f['precip_1hr_in']+'in '+Config.LToday+f['precip_today_in']+'in')
-        
+
     bottom.setText(Config.LSunRise+
                 wxdata['sun_phase']['sunrise']['hour']+':'+wxdata['sun_phase']['sunrise']['minute']+
                 Config.LSet+
                 wxdata['sun_phase']['sunset']['hour']+':'+wxdata['sun_phase']['sunset']['minute']+ "\n"+
                 Config.LMoonPhase+
-                wxdata['moon_phase']['phaseofMoon']    
+                wxdata['moon_phase']['phaseofMoon']
                 )
-                
+
     for i in range(0,3):
         f = wxdata['hourly_forecast'][i*3+2]
         fl = forecast[i]
@@ -232,9 +232,9 @@ def wxfinished():
                 if float(f['qpf']['english']) > 0.0:
                     s += Config.LRain+f['qpf']['english']+'in '
             s += f['temp']['english']+u'°F'
-            
+
         wx2.setText(s)
-        
+
     for i in range(3,9):
         f = wxdata['forecast']['simpleforecast']['forecastday'][i-3]
         fl = forecast[i]
@@ -264,24 +264,24 @@ def wxfinished():
             s += str(f['high']['fahrenheit'])+'/'+str(f['low']['fahrenheit'])+u'°F'
         wx2.setText(s)
 
-        
-        
+
+
 def getwx():
     global wxurl
     global wxreply
     print "getting current and forecast:"+time.ctime()
-    wxurl = Config.wuprefix + ApiKeys.wuapi + '/conditions/astronomy/hourly10day/forecast10day/lang:'+Config.wuLanguage+'/q/' 
-    wxurl += str(Config.wulocation.lat)+','+str(Config.wulocation.lng)+'.json' 
+    wxurl = Config.wuprefix + ApiKeys.wuapi + '/conditions/astronomy/hourly10day/forecast10day/lang:'+Config.wuLanguage+'/q/'
+    wxurl += str(Config.wulocation.lat)+','+str(Config.wulocation.lng)+'.json'
     wxurl += '?r=' + str(random.random())
     print wxurl
     r = QUrl(wxurl)
     r = QNetworkRequest(r)
     wxreply = manager.get(r)
-    wxreply.finished.connect(wxfinished)    
+    wxreply.finished.connect(wxfinished)
 
 def getallwx():
     getwx()
-    
+
 def qtstart():
     global ctimer, wxtimer, temptimer
     global manager
@@ -289,9 +289,9 @@ def qtstart():
     global objradar2
     global objradar3
     global objradar4
-    
+
     getallwx()
-    
+
     gettemp()
 
     objradar1.start(Config.radar_refresh*60)
@@ -300,11 +300,11 @@ def qtstart():
     objradar2.wxstart()
     objradar3.start(Config.radar_refresh*60)
     objradar4.start(Config.radar_refresh*60)
-    
+
     ctimer = QtCore.QTimer()
     ctimer.timeout.connect(tick)
     ctimer.start(1000)
-    
+
     wxtimer = QtCore.QTimer()
     wxtimer.timeout.connect(getallwx)
     wxtimer.start(1000*Config.weather_refresh*60+random.uniform(1000,10000))
@@ -312,16 +312,16 @@ def qtstart():
     temptimer = QtCore.QTimer()
     temptimer.timeout.connect(gettemp)
     temptimer.start(1000*10*60+random.uniform(1000,10000))
-    
+
 
 class Radar(QtGui.QLabel):
 
     def __init__(self, parent, radar, rect, myname):
         global xscale, yscale
-        self.myname = myname
+        self.myname = myname        
         self.rect = rect
         self.satellite = Config.satellite
-        try: 
+        try:
             if radar["satellite"]:
                 self.satellite = 1
         except KeyError:
@@ -335,29 +335,30 @@ class Radar(QtGui.QLabel):
         self.interval = Config.radar_refresh*60
         self.lastwx = 0
         self.retries = 0
-        
+
         self.setObjectName("radar")
         self.setGeometry(rect)
-        self.setStyleSheet("#radar { background-color: grey; }")    
+        self.setStyleSheet("#radar { background-color: grey; }")
         self.setAlignment(Qt.AlignCenter)
 
         self.wwx = QtGui.QLabel(self)
         self.wwx.setObjectName("wx")
-        self.wwx.setStyleSheet("#wx { background-color: transparent; }")    
+        self.wwx.setStyleSheet("#wx { background-color: transparent; }")
         self.wwx.setGeometry(0, 0, rect.width(), rect.height())
 
         self.wmk = QtGui.QLabel(self)
         self.wmk.setObjectName("mk")
-        self.wmk.setStyleSheet("#mk { background-color: transparent; }")    
-        self.wmk.setGeometry(0, 0, rect.width(), rect.height()) 
+        self.wmk.setStyleSheet("#mk { background-color: transparent; }")
+        self.wmk.setGeometry(0, 0, rect.width(), rect.height())
 
         self.wxmovie = QMovie()
-        
+        self.setMouseTracking(True)
+
 
     def mapurl(self, radar,rect,markersonly):
         #'https://maps.googleapis.com/maps/api/staticmap?maptype=hybrid&center='+rcenter.lat+','+rcenter.lng+'&zoom='+rzoom+'&size=300x275'+markersr;
         urlp = [];
-        
+
         if len(ApiKeys.googleapi) > 0: urlp.append('key='+ApiKeys.googleapi)
         urlp.append('center='+str(radar['center'].lat)+','+str(radar['center'].lng))
         zoom = radar['zoom']
@@ -368,7 +369,7 @@ class Radar(QtGui.QLabel):
         urlp.append('zoom='+str(zoom))
         urlp.append('size='+str(rsize.width())+'x'+str(rsize.height()))
         if markersonly:
-            urlp.append('style=visibility:off') 
+            urlp.append('style=visibility:off')
         else:
             urlp.append('maptype=hybrid')
         for marker in radar['markers']:
@@ -405,8 +406,8 @@ class Radar(QtGui.QLabel):
                 '&height='+str(rect.height())+
                 '&newmaps=0&reproj.automerc=1&num=5&delay=25&timelabel=1&timelabel.y=10&rainsnow=1&smooth=1&radar_bitmap=1&xnoclutter=1&xnoclutter_mask=1&cors=1'
                 )
-            
-    
+
+
     def basefinished(self):
         if self.basereply.error() != QNetworkReply.NoError: return
         self.basepixmap = QPixmap()
@@ -425,8 +426,8 @@ class Radar(QtGui.QLabel):
             self.wwx.setPixmap(self.basepixmap)
         else:
             self.setPixmap(self.basepixmap)
-            
-    
+
+
     def mkfinished(self):
         if self.mkreply.error() != QNetworkReply.NoError: return
         self.mkpixmap = QPixmap()
@@ -462,7 +463,7 @@ class Radar(QtGui.QLabel):
                 # the next normal radar_refresh time (default 10min) will apply
                 self.lastwx = time.time()
                 return
-            
+
             self.lastwx = 0
             # count retries
             self.retries = self.retries + 1
@@ -509,14 +510,14 @@ class Radar(QtGui.QLabel):
         self.mkreq = QNetworkRequest(QUrl(self.mkurl))
         self.mkreply = manager.get(self.mkreq)
         QtCore.QObject.connect(self.mkreply,QtCore.SIGNAL("finished()"),self.mkfinished)
-        
+
     def start(self, interval=0):
         if interval > 0: self.interval = interval
         self.getbase()
         self.getmk()
         self.timer = QtCore.QTimer()
         QtCore.QObject.connect(self.timer,QtCore.SIGNAL("timeout()"), self.getwx)
-       
+
     def wxstart(self):
         print "wxstart for "+self.myname
         if (self.lastwx == 0 or (self.lastwx+self.interval) < time.time()): self.getwx()
@@ -525,12 +526,12 @@ class Radar(QtGui.QLabel):
         self.timer.start(i)
         self.wxmovie.start()
         QtCore.QTimer.singleShot(1000, self.wxmovie.start)
-        
+
     def wxstop(self):
         print "wxstop for "+self.myname
         self.timer.stop()
         self.wxmovie.stop()
-        
+
     def stop(self):
         try:
             self.timer.stop()
@@ -539,21 +540,21 @@ class Radar(QtGui.QLabel):
         except Exception:
             pass
 
-def realquit():    
+def realquit():
     QtGui.QApplication.exit(0)
-        
+
 def myquit(a=0,b=0):
     global objradar1, objradar2,objradar3,objradar4
     global ctimer, wtimer,temptimer
-    
+
     objradar1.stop()
     objradar2.stop()
     objradar3.stop()
-    objradar4.stop()    
+    objradar4.stop()
     ctimer.stop()
     wxtimer.stop()
     temptimer.stop()
-    
+
     QtCore.QTimer.singleShot(30, realquit)
 
 def fixupframe(frame,onoff):
@@ -565,7 +566,7 @@ def fixupframe(frame,onoff):
             else:
                 #print "calling wxstop on radar on ",frame.objectName()
                 child.wxstop()
-        
+
 def nextframe(plusminus):
     global frames, framep
     frames[framep].setVisible(False)
@@ -577,6 +578,7 @@ def nextframe(plusminus):
     fixupframe(frames[framep],True)
 
 class myMain(QtGui.QWidget):
+    
     def keyPressEvent(self, event):
         global weatherplayer, lastkeytime
         if type(event) == QtGui.QKeyEvent:
@@ -596,19 +598,22 @@ class myMain(QtGui.QWidget):
                 nextframe(-1)
             if event.key() == Qt.Key_Right:
                 nextframe(1)
-                
-	def mouseMoveEvent(self, QMouseEvent):
-		nextframe(1)
-		
+
+    def mouseMoveEvent(self, QMouseEvent):
+        global lastMtime
+        if time.time() > lastMtime:
+            nextframe(1)
+        lastMtime = time.time() + 0.5
+
 configname = 'Config'
 
-if len(sys.argv) > 1: 
+if len(sys.argv) > 1:
     configname = sys.argv[1]
 
 if not os.path.isfile(configname+".py"):
     print "Config file not found %s" % configname+".py"
     exit(1)
-      
+
 Config = __import__(configname)
 
 # define default values for new/optional config variables.
@@ -670,6 +675,7 @@ pdy = ""
 lasttimestr = ""
 weatherplayer = None
 lastkeytime = 0
+lastMtime = 0
 lastapiget = time.time()
 
 app = QtGui.QApplication(sys.argv)
@@ -682,8 +688,9 @@ signal.signal(signal.SIGINT, myquit)
 
 w = myMain()
 w.setWindowTitle(os.path.basename(__file__))
+w.setMouseTracking(True)
 
-w.setStyleSheet("QWidget { background-color: black;}")  
+w.setStyleSheet("QWidget { background-color: black;}")
 
 #fullbgpixmap = QtGui.QPixmap(Config.background)
 #fullbgrect = fullbgpixmap.rect()
@@ -734,19 +741,19 @@ if not Config.digital:
     clockrect = QtCore.QRect(width/2-height*.4, height*.45-height*.4,height * .8, height * .8)
     clockface.setGeometry(clockrect)
     clockface.setStyleSheet("#clockface { background-color: transparent; border-image: url("+Config.clockface+") 0 0 0 0 stretch stretch;}")
-    
+
     hourhand = QtGui.QLabel(frame1)
     hourhand.setObjectName("hourhand")
     hourhand.setStyleSheet("#hourhand { background-color: transparent; }")
-    
+
     minhand = QtGui.QLabel(frame1)
     minhand.setObjectName("minhand")
     minhand.setStyleSheet("#minhand { background-color: transparent; }")
-    
+
     sechand = QtGui.QLabel(frame1)
     sechand.setObjectName("sechand")
     sechand.setStyleSheet("#sechand { background-color: transparent; }")
-    
+
     hourpixmap = QtGui.QPixmap(Config.hourhand)
     hourpixmap2 = QtGui.QPixmap(Config.hourhand)
     minpixmap = QtGui.QPixmap(Config.minhand)
@@ -768,7 +775,7 @@ else:
     glow.setBlurRadius(50)
     glow.setColor(QColor(dcolor))
     clockface.setGraphicsEffect(glow)
-    
+
 
 radar1rect = QtCore.QRect(3*xscale, 344*yscale, 300*xscale, 275*yscale)
 objradar1 = Radar(frame1, Config.radar1, radar1rect, "radar1")
@@ -810,6 +817,7 @@ wxicon2 = QtGui.QLabel(frame2)
 wxicon2.setObjectName("wxicon2")
 wxicon2.setStyleSheet("#wxicon2 { background-color: transparent; }")
 wxicon2.setGeometry(0*xscale,750*yscale,150*xscale,150*yscale)
+wxicon2.setMouseTracking(True)
 
 ypos += 130
 wxdesc = QtGui.QLabel(frame1)
@@ -823,6 +831,7 @@ wxdesc2.setObjectName("wxdesc2")
 wxdesc2.setStyleSheet("#wxdesc2 { background-color: transparent; color: "+Config.textcolor+"; font-size: "+str(int(50*xscale))+"px; "+Config.fontattr+"}")
 wxdesc2.setAlignment(Qt.AlignLeft | Qt.AlignTop);
 wxdesc2.setGeometry(400*xscale,800*yscale,400*xscale,100)
+wxdesc2.setMouseTracking(True)
 
 ypos += 25
 temper = QtGui.QLabel(frame1)
@@ -836,6 +845,7 @@ temper2.setObjectName("temper2")
 temper2.setStyleSheet("#temper2 { background-color: transparent; color: "+Config.textcolor+"; font-size: "+str(int(70*xscale))+"px; "+Config.fontattr+"}")
 temper2.setAlignment(Qt.AlignHCenter | Qt.AlignTop);
 temper2.setGeometry(125*xscale,780*yscale,300*xscale,100)
+temper2.setMouseTracking(True)
 
 ypos += 80
 press = QtGui.QLabel(frame1)
@@ -891,12 +901,12 @@ for i in range(0,9):
     lab.setObjectName("forecast"+str(i))
     lab.setStyleSheet("QWidget { background-color: transparent; color: "+Config.textcolor+"; font-size: "+str(int(20*xscale))+"px; "+Config.fontattr+"}")
     lab.setGeometry(1137*xscale,i*100*yscale,300*xscale,100*yscale)
-    
+
     icon = QtGui.QLabel(lab)
     icon.setStyleSheet("#icon { background-color: transparent; }")
     icon.setGeometry(0,0,100*xscale,100*yscale)
     icon.setObjectName("icon")
-    
+
     wx = QtGui.QLabel(lab)
     wx.setStyleSheet("#wx { background-color: transparent; }")
     wx.setGeometry(100*xscale,10*yscale,200*xscale,20*yscale)
@@ -911,7 +921,7 @@ for i in range(0,9):
 
     day = QtGui.QLabel(lab)
     day.setStyleSheet("#day { background-color: transparent; }")
-    day.setGeometry(100*xscale,75*yscale,200*xscale,25*yscale) 
+    day.setGeometry(100*xscale,75*yscale,200*xscale,25*yscale)
     day.setAlignment(Qt.AlignRight | Qt.AlignBottom);
     day.setObjectName("day")
 
@@ -928,7 +938,7 @@ manager = QtNetwork.QNetworkAccessManager()
 #proxy.setHostName("localhost")
 #proxy.setPort(8888)
 #QNetworkProxy.setApplicationProxy(proxy)
-  
+
 stimer = QtCore.QTimer()
 stimer.singleShot(10, qtstart)
 
@@ -938,4 +948,3 @@ w.show()
 w.showFullScreen()
 
 sys.exit(app.exec_())
-
