@@ -43,6 +43,7 @@ satellite = 0           # Depreciated: use 'satellite' key in radar section, on 
 fontattr = 'font-weight: bold; '
 dimcolor = QColor('#103125')
 dimcolor.setAlpha(192)
+brightness = 15 # Set to just be visable in the dark
 
 # Language Specific wording
 wuLanguage = "EN"   # Weather Undeground Language code (https://www.wunderground.com/weather/api/d/docs?d=language-support&MR=1)

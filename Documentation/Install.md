@@ -51,7 +51,7 @@ sudo raspi-config
 ``` 
 and change the boot option to Desktop/Auto-login
 
-### editing config.txt
+### Editing config.txt
 
 Log into your Pi, (either on the screen or via ssh)
 
@@ -118,14 +118,28 @@ After this operation, 44.4 MB of additional disk space will be used.
 Do you want to continue [Y/n]? y
 Go ahead, say yes
 
-then get libboost for python (optional for the NeoPixel LED Driver)
-```
-apt-get install libboost-python1.49.0
-```
-
 then get unclutter (disables the mouse pointer when there's no activity)
 ```
 apt-get install unclutter
+```
+
+Used for controlling sceen brightness of the sceen.
+```
+git clone https://github.com/Scouttp/rpi-backlight
+python setup.py install
+```
+may require the editing of backlight rules file
+```
+sudo nano /etc/udev/rules.d/backlight-permissions.rules
+```
+insert the line
+```
+SUBSYSTEM=="backlight",RUN+="/bin/chmod 666 /sys/class/backlight/%k/brightness /sys/class/backlight/%k/bl_power"
+```
+
+### Get libboost for python for the NeoPixel LED Driver (optional)
+```
+apt-get install libboost-python1.49.0
 ```
 
 ### Get the DS18B20 Temperature driver for Python (optional)
