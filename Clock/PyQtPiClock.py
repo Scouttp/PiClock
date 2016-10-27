@@ -352,7 +352,6 @@ class Radar(QtGui.QLabel):
         self.wmk.setGeometry(0, 0, rect.width(), rect.height())
 
         self.wxmovie = QMovie()
-        self.setMouseTracking(True)
 
 
     def mapurl(self, radar,rect,markersonly):
@@ -603,7 +602,7 @@ class myMain(QtGui.QWidget):
         global lastMtime
         if time.time() > lastMtime:
             nextframe(1)
-        lastMtime = time.time() + 0.5
+        lastMtime = time.time() + 0.1
 
 configname = 'Config'
 
@@ -688,7 +687,6 @@ signal.signal(signal.SIGINT, myquit)
 
 w = myMain()
 w.setWindowTitle(os.path.basename(__file__))
-w.setMouseTracking(True)
 
 w.setStyleSheet("QWidget { background-color: black;}")
 
@@ -706,7 +704,6 @@ framep = 0
 frame1 = QtGui.QFrame(w)
 frame1.setObjectName("frame1")
 frame1.setGeometry(0,0,width,height)
-frame1.setMouseTracking(True)
 frame1.setStyleSheet("#frame1 { background-color: black; border-image: url("+Config.background+") 0 0 0 0 stretch stretch;}")
 frames.append(frame1)
 
@@ -714,7 +711,6 @@ frame2 = QtGui.QFrame(w)
 frame2.setObjectName("frame2")
 frame2.setGeometry(0,0,width,height)
 frame2.setStyleSheet("#frame2 { background-color: black; border-image: url("+Config.background+") 0 0 0 0 stretch stretch;}")
-frame1.setMouseTracking(True)
 frame2.setVisible(False)
 frames.append(frame2)
 
@@ -800,10 +796,10 @@ datex2 = QtGui.QLabel(frame2)
 datex2.setObjectName("datex2")
 datex2.setStyleSheet("#datex2 { font-family:sans-serif; color: "+Config.textcolor+"; background-color: transparent; font-size: "+str(int(50*xscale))+"px; "+Config.fontattr+"}")
 datex2.setAlignment(Qt.AlignHCenter | Qt.AlignTop);
-datex2.setGeometry(800*xscale,780*yscale,640*xscale,100)
+datex2.setGeometry(750*xscale,780*yscale,690*xscale,100)
 datey2 = QtGui.QLabel(frame2)
 datey2.setObjectName("datey2")
-datey2.setStyleSheet("#datey2 { font-family:sans-serif; color: "+Config.textcolor+"; background-color: transparent; font-size: "+str(int(50*xscale))+"px; "+Config.fontattr+"}")
+datey2.setStyleSheet("#datey2 { font-family:sans-serif; color: "+Config.textcolor+"; background-color: transparent ; font-size: "+str(int(50*xscale))+"px; "+Config.fontattr+"}")
 datey2.setAlignment(Qt.AlignHCenter | Qt.AlignTop);
 datey2.setGeometry(800*xscale,840*yscale,640*xscale,100)
 
@@ -817,7 +813,6 @@ wxicon2 = QtGui.QLabel(frame2)
 wxicon2.setObjectName("wxicon2")
 wxicon2.setStyleSheet("#wxicon2 { background-color: transparent; }")
 wxicon2.setGeometry(0*xscale,750*yscale,150*xscale,150*yscale)
-wxicon2.setMouseTracking(True)
 
 ypos += 130
 wxdesc = QtGui.QLabel(frame1)
@@ -831,7 +826,6 @@ wxdesc2.setObjectName("wxdesc2")
 wxdesc2.setStyleSheet("#wxdesc2 { background-color: transparent; color: "+Config.textcolor+"; font-size: "+str(int(50*xscale))+"px; "+Config.fontattr+"}")
 wxdesc2.setAlignment(Qt.AlignLeft | Qt.AlignTop);
 wxdesc2.setGeometry(400*xscale,800*yscale,400*xscale,100)
-wxdesc2.setMouseTracking(True)
 
 ypos += 25
 temper = QtGui.QLabel(frame1)
@@ -845,7 +839,6 @@ temper2.setObjectName("temper2")
 temper2.setStyleSheet("#temper2 { background-color: transparent; color: "+Config.textcolor+"; font-size: "+str(int(70*xscale))+"px; "+Config.fontattr+"}")
 temper2.setAlignment(Qt.AlignHCenter | Qt.AlignTop);
 temper2.setGeometry(125*xscale,780*yscale,300*xscale,100)
-temper2.setMouseTracking(True)
 
 ypos += 80
 press = QtGui.QLabel(frame1)
@@ -943,7 +936,7 @@ stimer = QtCore.QTimer()
 stimer.singleShot(10, qtstart)
 
 #print radarurl(Config.radar1,radar1rect)
-
+w.setMouseTracking(True)
 w.show()
 w.showFullScreen()
 
